@@ -1,0 +1,60 @@
+---
+- name: Configure arya server
+  hosts: arya
+  become: yes
+
+  tasks:
+    - name: Update all packages
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+
+    - name: Install Docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Install pip
+      yum:
+        name: python3-pip
+        state: present
+
+    - name: Install Docker SDK for Python
+      pip:
+        name: docker
+        state: present
+
+    - name: Copy application files
+      copy:
+        src: ../docker/
+        dest: /home/ec2-user/app/
+
+    - name: Build Docker image
+      docker_image:
+        name: sample-app
+        build:
+          path: /home/ec2-user/app/
+        source: build
+        state: present
+
+    - name: Run Docker container
+      docker_container:
+        name: sample-app
+        image: sample-app
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80"
