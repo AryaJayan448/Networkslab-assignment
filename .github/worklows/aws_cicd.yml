@@ -1,0 +1,51 @@
+name: Build and Deploy Dockerized Python App on EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      EC2_USER: "ec2-user"
+      EC2_HOST: "63.35.248.204"
+      SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Compress project files
+        run: zip -r app.zip ./*
+
+      - name: Copy project files and SSH key to EC2 instance
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ env.SSH_KEY }}
+          source: "app.zip"
+          target: "~/"
+
+      - name: Connect to EC2 instance and build/deploy Docker container
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ env.EC2_HOST }}
+          username: ${{ env.EC2_USER }}
+          key: ${{ env.SSH_KEY }}
+          script: |
+            # Extract the application files
+            unzip app.zip -d ~/app
+            cd ~/app/docker/
+            
+            # Build the Docker image locally
+            docker build -t my-python-app .
+            
+            # Stop and remove any existing container (optional)
+            docker stop my-python-container || true
+            docker rm my-python-container || true
+            
+            # Run the Docker container
+            docker run -d --name my-python-container -p 8080:80 my-python-app
