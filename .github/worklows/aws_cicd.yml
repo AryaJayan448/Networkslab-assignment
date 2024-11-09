@@ -29,7 +29,7 @@ jobs:
           source: "app.zip"
           target: "~/"
 
-      - name: Connect to EC2 instance and build/deploy Docker container
+      - name: Connect to EC2-instance and build/deploy Docker container
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ env.EC2_HOST }}
