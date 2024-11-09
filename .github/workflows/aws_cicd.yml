@@ -17,6 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
+      - name: Deleting existing folder
+        run: |
+         pwd
+         ls -la
+         rm -rf app.zip
+         rm -rf app
+
       - name: Compress project files
         run: zip -r app.zip ./*
 
@@ -29,23 +36,30 @@ jobs:
           source: "app.zip"
           target: "~/"
 
-      - name: Connect to EC2-instance and build/deploy Docker container
+      - name: Connect to EC2 instance and build/deploy Docker container
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ env.EC2_HOST }}
           username: ${{ env.EC2_USER }}
           key: ${{ env.SSH_KEY }}
           script: |
+            # Deleting the existing container 
+            docker system prune -a
+            docker stop $(docker ps -a --format "{{.ID}}")
+            docker rm $(docker ps -a --format "{{.ID}}")
+
+            docker rmi $(docker images --format "{{.ID}}")
+
             # Extract the application files
             unzip app.zip -d ~/app
             cd ~/app/docker/
             
             # Build the Docker image locally
             docker build -t my-python-app .
-            
-            # Stop and remove any existing container (optional)
-            docker stop my-python-container || true
-            docker rm my-python-container || true
+
+            # Display the image build
             
             # Run the Docker container
             docker run -d --name my-python-container -p 8080:80 my-python-app
+
+            # echo "Access your site at http:{{env.EC2_HOST}}:8080"
