@@ -46,7 +46,7 @@ jobs:
           ssh-keyscan -H "${{ env.EC2_HOST_IP }}" > ~/.ssh/known_hosts
 
       - name: Run Ansible Playbook to install docker and other packages onto EC2 instance
-        working-directory: Ansible
+        working-directory: ansible
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
