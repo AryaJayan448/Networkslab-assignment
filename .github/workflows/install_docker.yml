@@ -1,4 +1,4 @@
-name: Install Docker to Ec2 Instance using Ansible
+name: Install Docker to EC2 Instance using Ansible
 
 on:
   push:
