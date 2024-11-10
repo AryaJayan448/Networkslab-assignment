@@ -34,5 +34,5 @@ Defines the EC2 host with SSH connection details. Update the IP address as per y
 
 ```ini
 [arya]
-52.49.140.87 ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/id_rsa
+54.229.110.81 ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/id_rsa
 
