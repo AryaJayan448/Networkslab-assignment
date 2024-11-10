@@ -50,5 +50,5 @@ jobs:
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
-          ansible-playbook -i inventory.ini play.yml
+          ansible-playbook -i inventory.ini docker-install.yml
         
