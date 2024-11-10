@@ -16,7 +16,7 @@ NETWORKLAB-ASSIGNMENT/
         └── install_docker.yml # GitHub Actions workflow to trigger the Ansible playbook
 └── docker/ 
     └── app/  
-        └── app.py #python code for displaying message (Networks assignment is done successfully !!!!! )
+        └── app.py #python code for displaying message (Networks Project Completed !!!!! )
     └── Dockerfile #Docker file for building the docker image of the python code
 
 ## Prerequisites
