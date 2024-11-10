@@ -1,0 +1,54 @@
+name: Install Docker to Ec2 Instance using Ansible
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  EC2_USER: ec2-user
+  EC2_HOST_IP: 52.49.140.87
+  SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+  DOCKER_IMAGE: my-python-app:${{ github.sha }}
+  CONTAINER_NAME: my-python-container
+  HOST_PORT: 8080
+  CONTAINER_PORT: 80
+
+jobs:
+  install-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: "Install Ansible"
+        uses: alex-oleshkevich/setup-ansible@v1.0.1
+        with:
+          version: "9.3.0"
+
+      - name: "Print Ansible version"
+        run: ansible-playbook --version
+
+      - name: "Setup SSH Private Key"
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+        
+      - name: Connect to EC2 Instance
+        run: |
+          ssh -i "${{ secrets.EC2_SSH_KEY }}" -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST_IP }}
+
+      - name: Add EC2's Public IP to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ env.EC2_HOST_IP }}" > ~/.ssh/known_hosts
+
+      - name: Run Ansible Playbook to install docker and other packages onto EC2 instance
+        working-directory: Ansible
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          ansible-playbook -i inventory.ini play.yml
+        
