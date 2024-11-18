@@ -7,7 +7,7 @@ on:
 
 env:
   EC2_USER: "ec2-user"
-  EC2_HOST: "54.229.110.81"
+  EC2_HOST: "34.249.217.116"
   SSH_KEY: "${{ secrets.EC2_SSH_KEY }}"
   DOCKER_IMAGE: "my-python-app:${{ github.sha }}"
   CONTAINER_NAME: "my-python-container"
